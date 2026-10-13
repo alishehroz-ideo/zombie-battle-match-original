@@ -1,0 +1,105 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Zombie Battle Match</title><style>
+html,body{margin:0;width:100%;height:100%;background:#090e0b;color:#eee;font-family:system-ui,sans-serif;overflow:hidden}body{display:flex;align-items:center;justify-content:center}#frame{height:100%;height:100dvh;aspect-ratio:9/16;max-width:100vw;position:relative;background:#000}canvas{width:100%;height:100%;display:block;touch-action:none}#gate{position:absolute;inset:0;background:#0e1714;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;gap:18px}h1{font-size:24px;letter-spacing:2px}button{border:1px solid #debc5b;border-radius:7px;background:#d2ac4a;color:#171f15;padding:15px 32px;font-size:18px;font-weight:bold;cursor:pointer}progress{width:80%;accent-color:#d2ac4a}#status{font-size:13px;line-height:1.7}#fullscreen{position:fixed;right:10px;bottom:10px;padding:7px 10px;font-size:12px;background:#1c291e;color:#ead8a8;z-index:2}#error{white-space:pre-wrap;overflow-wrap:anywhere;max-width:100%;font-size:12px}
+
+#frame{height:min(calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom)),177.7778vw);max-height:100dvh} #gate{padding-bottom:env(safe-area-inset-bottom)}
+#orientation-note{display:none}@media(orientation:landscape) and (max-height:480px){#orientation-note{display:block;position:fixed;left:12px;top:12px;width:24vw;font-size:12px;color:#ead8a8}}
+
+#gate{padding:0;background:#071015 url(start-key-art.png) center/cover no-repeat;gap:0}
+#gate h1,#gate>small{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+#play{position:absolute;left:12%;right:12%;bottom:12%;padding:17px 12px;font-size:25px;border:2px solid #ffe096;background:linear-gradient(#ffdb70,#d69728);box-shadow:0 4px 0 #664319,0 0 28px #e99a2840;text-shadow:0 1px #ffe5a2}
+#status{position:absolute;left:8%;right:8%;bottom:17%;text-shadow:0 2px 5px #000;background:#071015aa;border-radius:8px}
+#progress{position:absolute;bottom:12%;left:10%;width:80%}
+#error{position:absolute;left:8%;right:8%;bottom:3%;background:#071015cc}
+#page-mute{position:absolute;top:max(8px,env(safe-area-inset-top));right:8px;z-index:20;padding:8px 10px;font-size:12px;background:#0b151dde;color:#ffe2a1;border:1px solid #b58c44;box-shadow:0 2px 8px #0009;min-width:90px;min-height:38px;touch-action:manipulation}
+
+/* start-title-motion */
+body{box-sizing:border-box;padding-top:48px}
+#frame{height:min(calc(100dvh - 48px - env(safe-area-inset-top) - env(safe-area-inset-bottom)),177.7778vw);max-height:calc(100dvh - 48px)}
+#page-mute{position:fixed;top:max(6px,env(safe-area-inset-top));right:10px}
+#title-shine{position:absolute;z-index:10;top:3%;left:7%;width:86%;height:20%;overflow:hidden;pointer-events:none;mix-blend-mode:screen;background:radial-gradient(ellipse,#ffc25125,transparent 72%);animation:logo-glow 3.8s ease-in-out infinite}
+#title-shine[hidden]{display:none}
+#title-shine:after{content:'';position:absolute;inset:0;width:55%;background:linear-gradient(110deg,transparent 20%,#fff6d95c 47%,#ffbd4938 53%,transparent 78%);animation:logo-sweep 5.2s ease-in-out infinite}
+@keyframes logo-glow{0%,100%{opacity:.3}50%{opacity:.9}}
+@keyframes logo-sweep{0%,16%{transform:translateX(-160%);opacity:0}25%{opacity:.65}57%{transform:translateX(290%);opacity:0}100%{transform:translateX(290%);opacity:0}}
+@media(prefers-reduced-motion:reduce){#title-shine,#title-shine:after{animation:none;opacity:.12}}
+
+/* combat-start-button */
+#play,#mission-start{position:absolute;left:10%;right:10%;bottom:12%;height:78px;padding:8px 25px;border:5px ridge #63737a;border-radius:2px;color:#251504;font-size:27px;font-weight:900;letter-spacing:2px;text-shadow:0 1px #ffe9a8;background:repeating-linear-gradient(165deg,transparent 0 18px,#42270216 19px 20px,transparent 21px 41px),linear-gradient(100deg,#8a4c09,#f2bc48 12%,#ffe19a 48%,#e7a52a 83%,#81500d);box-shadow:0 0 0 2px #172126,0 5px 0 #080c0f, inset 0 0 0 2px #593b14,inset 0 5px 0 #fff4b660,0 6px 22px #000c;clip-path:polygon(3% 0,97% 0,100% 14%,100% 86%,97% 100%,3% 100%,0 86%,0 14%);transition:filter .16s,transform .16s;z-index:12}
+#play:before,#mission-start:before,#play:after,#mission-start:after{content:'✚';position:absolute;top:50%;transform:translateY(-50%);font-size:12px;color:#161d20;text-shadow:0 1px #e4ebd080;border:2px solid #2a363c;border-radius:50%;width:17px;height:17px;line-height:17px;background:linear-gradient(#87959a,#28353b);box-shadow:0 1px 2px #0009}
+#play:before,#mission-start:before{left:8px}#play:after,#mission-start:after{right:8px}
+#play:hover,#mission-start:hover{filter:brightness(1.14)}#play:active,#mission-start:active{transform:translateY(3px);filter:brightness(.88)}
+#play:focus-visible,#mission-start:focus-visible{outline:3px solid #fff;outline-offset:4px}
+#mission-start{left:7%;right:7%;bottom:9.1%;height:9%;background-color:#d89c29}
+#mission-start[hidden]{display:none}
+
+/* zombie-start-button */
+#play,#mission-start{color:#fff0bd;letter-spacing:4px;text-shadow:2px 2px 0 #190705,0 0 9px #db3b1490;border-color:#4b5149;background:radial-gradient(ellipse at 12% 5%,#790c09 0 7%,transparent 8%),radial-gradient(ellipse at 90% 92%,#760e08 0 9%,transparent 10%),repeating-linear-gradient(155deg,transparent 0 14px,#05080555 15px 17px,transparent 18px 35px),linear-gradient(100deg,#1e261d,#4e5b36 18%,#687344 50%,#404c2a 83%,#1c241c);box-shadow:0 0 0 2px #10140f,0 5px 0 #080c07,inset 0 0 0 2px #96875a,inset 0 5px 0 #c3b36a33,0 0 20px #9c21082b,0 6px 22px #000c}
+#play:hover,#mission-start:hover{filter:brightness(1.25);text-shadow:2px 2px #190705,0 0 12px #ff5529}
+</style><style id="fire-start-design">
+#play,#mission-start{left:7%;right:7%;width:86%;height:auto;min-height:0;aspect-ratio:4.25 / 1;padding:0;border:0;border-radius:0;background:transparent;color:transparent;text-shadow:none;box-shadow:none;clip-path:polygon(6% 0,94% 0,98.2% 19%,98.2% 78%,94% 96%,6% 96%,1.8% 78%,1.8% 19%);overflow:hidden;animation:fireStartGlow 2.8s ease-in-out infinite;cursor:pointer;}
+#play{bottom:12%;}#mission-start{bottom:9.1%;}
+#play::before,#mission-start::before{content:"";position:absolute;inset:0;left:-60%;width:35%;border:0;box-shadow:none;background:linear-gradient(110deg,transparent,rgba(255,245,185,.4),transparent);transform:skewX(-18deg);animation:fireStartShine 4s ease-in-out infinite;pointer-events:none;}
+#play::after,#mission-start::after{content:none;}
+#play:hover,#mission-start:hover{filter:brightness(1.16) drop-shadow(0 0 12px #ff7200);color:transparent;text-shadow:none;}
+#play:active,#mission-start:active{transform:scale(.96);}
+#play[hidden],#mission-start[hidden]{display:none;}
+@keyframes fireStartGlow{0%,100%{filter:brightness(1) drop-shadow(0 0 3px #e95500);}50%{filter:brightness(1.15) drop-shadow(0 0 11px #ff8c13);}}
+@keyframes fireStartShine{0%,45%{left:-60%;opacity:0;}52%{opacity:1;}75%,100%{left:125%;opacity:0;}}
+@media(prefers-reduced-motion:reduce){#play,#mission-start,#play::before,#mission-start::before{animation:none;}}
+</style>
+<style id="mobile-top-v28">
+body{padding-top:0}#frame{max-height:100dvh}
+#frame{height:min(100dvh,177.7778vw);width:min(100vw,56.25dvh);flex:none;max-width:100vw}
+#gate{background-size:100% 100%}
+#play,#mission-start{left:10.13%;right:auto;top:77.52%;bottom:auto;width:80.17%;height:11%;aspect-ratio:auto;background-image:url(start-key-art.png);background-size:124.74% 909.09%;background-position:50.97% 87.1%;clip-path:polygon(5% 0,95% 0,100% 18%,100% 82%,95% 100%,5% 100%,0 82%,0 18%)}
+#title-shine{top:5.4%;left:12%;width:76%;height:18%}
+#page-mute{position:absolute;top:max(4px,env(safe-area-inset-top));right:4px;min-width:44px;min-height:44px;width:44px;height:44px;padding:0;border:0;border-radius:50%;font-size:23px;background:#071015bb;box-shadow:none;display:grid;place-items:center;z-index:30}
+#page-mute:focus-visible{outline:2px solid #ffd468;outline-offset:-2px}
+#frame.match-running #page-mute{top:10.5%}
+</style>
+<link rel="stylesheet" href="result-ui.css"><link rel="stylesheet" href="hud-ui.css"></head><body><div id="orientation-note">縦向きでのプレイがおすすめです</div><div id="frame"><button id="page-mute" type="button" aria-pressed="false">音声 ON</button><canvas id="unity-canvas" width="540" height="960" tabindex="-1"></canvas><div id="title-shine" aria-hidden="true"></div><button id="mission-start" hidden>▶ START</button><div id="gate"><h1>ZOMBIE<br>BATTLE MATCH</h1><p id="status"></p><button id="play">▶ START</button><progress id="progress" max="1" value="0" hidden></progress><p id="error" role="alert"></p></div></div><button id="fullscreen" hidden>全画面</button><button id="replay-log" hidden style="position:fixed;left:10px;bottom:10px;padding:7px 10px;font-size:12px">試合ログ保存</button><script src="webgl-data.js"></script><script>
+window.onZombieMatchStarted = function(){document.getElementById('frame').classList.add('match-running');window.dispatchEvent(new Event("zombie-match-started"));};
+window.onZombieMatchReplay = function(json){document.body.dataset.matchReplay=json;window.dispatchEvent(new CustomEvent("zombie-match-replay",{detail:JSON.parse(json)}));};
+window.onZombieScoreMatchFinished = function(json) { document.getElementById('frame').classList.remove('match-running');const result = JSON.parse(json); document.body.dataset.matchResult = json;document.getElementById("replay-log").hidden=false; window.dispatchEvent(new CustomEvent("zombie-score-match-finished", {detail:result})); };
+const canvas=document.getElementById('unity-canvas'),gate=document.getElementById('gate'),progress=document.getElementById('progress'),button=document.getElementById('play');let instance;
+
+window.returnToZombieTitle=()=>{if(!instance)throw new Error('Game unavailable');instance.SendMessage('ZombieAudioControl','ReturnToTitle','');document.getElementById('title-shine').hidden=false;};
+const muteButton=document.getElementById('page-mute');let pageMuted=false;
+try{pageMuted=localStorage.getItem('zombie-muted')==='1';}catch(e){}
+function applyPageMute(){muteButton.textContent=pageMuted?'🔇':'🔊';muteButton.setAttribute('aria-pressed',String(pageMuted));muteButton.setAttribute('aria-label',pageMuted?'音声をオンにする':'ミュートする');if(instance)instance.SendMessage('ZombieAudioControl','SetMuted',pageMuted?'1':'0');}
+muteButton.onclick=()=>{pageMuted=!pageMuted;try{localStorage.setItem('zombie-muted',pageMuted?'1':'0');}catch(e){}applyPageMute();};
+applyPageMute();
+
+button.onclick=()=>{button.disabled=true;button.hidden=true;progress.hidden=false;document.getElementById('status').textContent='ゲームを読み込み中… 初回は時間がかかります';const script=document.createElement('script');script.src='Build/webgl-build.loader.js';script.onload=()=>createUnityInstance(canvas,{dataUrl:'Build/webgl-build.data.unityweb',frameworkUrl:'Build/webgl-build.framework.js.unityweb',codeUrl:'Build/webgl-build.wasm.unityweb',streamingAssetsUrl:'StreamingAssets',companyName:'Brave Giant Entertainment',productName:'Zombie Puzzle Survival',productVersion:'0.1.5'},value=>{progress.value=value}).then(game=>{instance=game;applyPageMute();if(window.BattleResultUI&&window.onZombieHud)instance.SendMessage('ZombieAudioControl','EnableWebUI','1');instance.SendMessage('ZombieAudioControl','StartMatch','');gate.hidden=true;gate.style.display='none';document.getElementById('fullscreen').hidden=false;canvas.focus()}).catch(error=>{document.getElementById('error').textContent='起動できませんでした。'+String(error);document.getElementById('status').textContent='再読み込みしてお試しください'});script.onerror=()=>{document.getElementById('error').textContent='読み込みに失敗しました。接続を確認して再読み込みしてください'};document.body.append(script)};
+document.getElementById('replay-log').onclick=()=>{const data={result:JSON.parse(document.body.dataset.matchResult),replay:JSON.parse(document.body.dataset.matchReplay||'{}')};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='zombie-match-log.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+document.getElementById('fullscreen').onclick=()=>{if(instance)instance.SetFullscreen(1)};
+</script><script>
+(()=>{const shine=document.getElementById('title-shine');let atResult=false;
+window.addEventListener('zombie-match-started',()=>{shine.hidden=true;atResult=false;});
+window.addEventListener('zombie-score-match-finished',()=>{shine.hidden=true;atResult=true;});
+const resultCanvas=document.getElementById('unity-canvas');let resultButtonDown=false;
+const onResultButton=e=>{const r=resultCanvas.getBoundingClientRect(),w=r.width/r.height*960,fit=Math.min((w-20)/335,920/408),left=(w-335*fit)/2,top=(960-408*fit)/2,x=((e.clientX-r.left)/r.width*w-left)/fit,y=((e.clientY-r.top)/r.height*960-top)/fit;return x>=36&&x<=299&&y>=335&&y<=382;};
+resultCanvas.addEventListener('pointerdown',e=>{resultButtonDown=atResult&&onResultButton(e);},true);
+resultCanvas.addEventListener('pointerup',e=>{const retry=atResult&&resultButtonDown&&onResultButton(e);resultButtonDown=false;if(retry){atResult=false;requestAnimationFrame(()=>{shine.hidden=false;});}},true);
+})();
+</script><script>
+// Page sound cues follow the same mute state as Unity.
+let cueAudio;
+const zombieStartVoice=new Audio("start-zombie.wav");zombieStartVoice.preload="auto";zombieStartVoice.volume=.8;zombieStartVoice.playbackRate=.9;
+function combatCue(kind){if(pageMuted)return;if(kind==='start'){zombieStartVoice.currentTime=0;zombieStartVoice.play().catch(()=>{});return;}try{
+ cueAudio=cueAudio||new(window.AudioContext||window.webkitAudioContext)();cueAudio.resume();const t=cueAudio.currentTime;
+ const tone=(f,at,d,v,type='sine')=>{const o=cueAudio.createOscillator(),g=cueAudio.createGain();o.type=type;o.frequency.setValueAtTime(f,t+at);g.gain.setValueAtTime(.001,t+at);g.gain.exponentialRampToValueAtTime(v,t+at+.012);g.gain.exponentialRampToValueAtTime(.001,t+at+d);o.connect(g).connect(cueAudio.destination);o.start(t+at);o.stop(t+at+d+.02);};
+ const hit=(at,d,v)=>{const b=cueAudio.createBuffer(1,Math.ceil(cueAudio.sampleRate*d),cueAudio.sampleRate),a=b.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=(Math.random()*2-1)*Math.exp(-i/(cueAudio.sampleRate*d*.17));const s=cueAudio.createBufferSource(),g=cueAudio.createGain(),f=cueAudio.createBiquadFilter();s.buffer=b;f.type='lowpass';f.frequency.value=kind==='start'?3000:1400;g.gain.value=v;s.connect(f).connect(g).connect(cueAudio.destination);s.start(t+at);};
+ {hit(0,.25,.18);[392,494,587,784].forEach((f,i)=>{tone(f,i*.12,.36,.075,'triangle');tone(f/2,i*.12,.4,.045);});tone(1046,.49,.5,.045,'triangle');}
+ }catch(e){} }
+const replayStart=document.getElementById('mission-start');
+document.getElementById('play').addEventListener('click',()=>combatCue('start'));
+replayStart.onclick=()=>{combatCue('start');instance.SendMessage('ZombieAudioControl','StartMatch','');replayStart.hidden=true;};
+window.addEventListener('zombie-match-started',()=>{replayStart.hidden=true;});
+window.addEventListener('zombie-score-match-finished',()=>{replayStart.hidden=true;combatCue('result');});
+document.getElementById('page-mute').addEventListener('click',()=>{if(pageMuted){zombieStartVoice.pause();zombieStartVoice.currentTime=0;}if(cueAudio){if(pageMuted)cueAudio.suspend();else cueAudio.resume();}});
+const titleObserver=new MutationObserver(()=>{replayStart.hidden=document.getElementById('title-shine').hidden||!gate.hidden;});
+titleObserver.observe(document.getElementById('title-shine'),{attributes:true,attributeFilter:['hidden']});
+</script><script src="result-ui.js"></script><script src="hud-ui.js"></script></body></html>
+
+
